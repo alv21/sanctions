@@ -15,11 +15,13 @@ fun main(args: Array<String>) {
 class Application {
 
 	@Bean
-	fun mustacheCompiler(mustacheTemplateLoader: Mustache.TemplateLoader, environment: Environment): Mustache.Compiler {
-		val collector = MustacheEnvironmentCollector()
-		collector.setEnvironment(environment)
-		return Mustache.compiler().defaultValue("")
-				.withLoader(mustacheTemplateLoader)
-				.withCollector(collector)
-	}
+	fun mustacheCompiler(mustacheTemplateLoader: Mustache.TemplateLoader, environment: Environment): Mustache.Compiler =
+			MustacheEnvironmentCollector()
+					.apply { setEnvironment(environment) }
+					.run {
+						Mustache.compiler()
+								.defaultValue("")
+								.withLoader(mustacheTemplateLoader)
+								.withCollector(this)
+					}
 }

@@ -10,14 +10,12 @@ import java.io.StringReader
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.JAXBElement
 
-fun searchSanctions(name: String, sanctionList: List<Result>): List<Result> {
-	return sanctionList
-			.asSequence()
-			.mapNotNull { res -> Result(res.name, res.aliases, relevance = res.aliases.plus(res.name).map { it.toLowerCase().matchScore(name) }.max()) }
-			.filter { it.relevance ?: 0F > 0 }
-			.sortedByDescending { it.relevance }
-			.toList()
-}
+fun searchSanctions(name: String, sanctionList: List<Result>): List<Result> = sanctionList
+		.asSequence()
+		.mapNotNull { res -> Result(res.name, res.aliases, relevance = res.aliases.plus(res.name).map { it.toLowerCase().matchScore(name) }.max()) }
+		.filter { it.relevance ?: 0F > 0 }
+		.sortedByDescending { it.relevance }
+		.toList()
 
 fun parseAndMapToResult(file: File): List<Result> = (
 		JAXBContext
@@ -45,17 +43,17 @@ private fun String.matchScore(name: String): Float {
 	return 0F
 }
 
-private fun SanctionEntityType.mapToResult(): Result? {
-	val aliases = nameAlias
-			.map {
-				if (StringUtils.isNotEmpty(it.wholeName)) it.wholeName
-				else "${it.firstName ?: ""}${it.middleName ?: ""}${it.lastName ?: ""}"
-			}
-
-	return if (aliases.isEmpty()) null
-	else Result(aliases[0], if (aliases.size > 1) aliases.subList(1, aliases.size) else emptyList(), relevance = null)
-}
-
+private fun SanctionEntityType.mapToResult(): Result? =
+		nameAlias
+				.map {
+					if (StringUtils.isNotEmpty(it.wholeName)) it.wholeName
+					else "${it.firstName ?: ""}${it.middleName ?: ""}${it.lastName ?: ""}"
+				}.let { aliases ->
+					if (aliases.isEmpty()) null
+					else Result(aliases[0],
+							if (aliases.size > 1) aliases.subList(1, aliases.size) else emptyList(),
+							relevance = null)
+				}
 
 class Result(val name: String,
 			 val aliases: List<String>,

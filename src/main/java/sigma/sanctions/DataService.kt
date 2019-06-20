@@ -14,10 +14,7 @@ interface DataService {
 class UrlDataService : DataService {
 	private val XML_URL = "https://webgate.ec.europa.eu/europeaid/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=n002qso2"
 
-	override fun retrieveData(): File {
-		val file = File.createTempFile("sanctions", ".tmp")
-		file.deleteOnExit()
-		Files.copy(URL(XML_URL).openStream(), file.toPath(), StandardCopyOption.REPLACE_EXISTING)
-		return file
-	}
+	override fun retrieveData(): File =  File.createTempFile("sanctions", ".tmp")
+			.also { it.deleteOnExit() }
+			.also { Files.copy(URL(XML_URL).openStream(), it.toPath(), StandardCopyOption.REPLACE_EXISTING) }
 }
